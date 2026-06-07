@@ -1,0 +1,9 @@
+# run_demo.py needs nothing beyond the standard library.
+# The real pipeline (run_probe_check.py, run_steer.py) needs:
+numpy
+scipy
+scikit-learn
+matplotlib
+torch
+transformer_lens
+transformers
