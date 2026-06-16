@@ -8,3 +8,13 @@ results/
 *.csv
 .DS_Store
 .ipynb_checkpoints/
+
+# LaTeX build intermediates (keep .tex and .pdf)
+*.aux
+*.log
+*.out
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.bbl
+*.blg
