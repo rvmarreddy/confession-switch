@@ -1,4 +1,4 @@
-# run_demo.py needs nothing beyond the standard library.
+# run_demo.py and tests/test_pipeline.py need only numpy and scipy.
 # The real pipeline (run_probe_check.py, run_steer.py) needs:
 numpy
 scipy
@@ -7,3 +7,5 @@ matplotlib
 torch
 transformer_lens
 transformers
+datasets
+# plus a local Ollama (https://ollama.com) with the judge model pulled, e.g. `ollama pull qwen2.5:7b`
