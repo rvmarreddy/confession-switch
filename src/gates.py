@@ -49,7 +49,7 @@ def auroc_ci(scores, y, n_boot=2000, level=0.95, seed=0):
 
 
 def delong_paired(y, scores_a, scores_b):
-    """YOUR PART (Rithvik). Paired DeLong test for two AUROCs on the same labels.
+    """TODO. Paired DeLong test for two AUROCs on the same labels.
 
     Inputs: y in {0,1} (n,), and two score vectors (n,) from two directions on the same rollouts.
     Return (auc_a, auc_b, z, p) where z = (auc_a - auc_b) / sqrt(var(auc_a - auc_b)) and
@@ -64,7 +64,7 @@ def delong_paired(y, scores_a, scores_b):
 
     tests/test_pipeline.py has the checks it must pass (they skip until this is written).
     """
-    raise NotImplementedError("delong_paired is Rithvik's to write; see the docstring")
+    raise NotImplementedError("delong_paired is not written yet; see the docstring")
 
 
 def m1_verdict(X, usage, ack, d_use, d_ack):

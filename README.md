@@ -23,13 +23,15 @@ If that dissociation exists, unfaithful CoT is partly a thin **reporting/suppres
 README.md            this file
 PLAN.md              research plan, milestones, prior work, honest caveats
 run_demo.py          runnable with zero dependencies: the two-probe orthogonality analysis on synthetic activations
-run_probe_check.py   stage 1 on a real model (needs the ML stack)
+run_probe_check.py   stage 1 on a real model: rollouts, labels, both probes and the pre-registered gates
 run_steer.py         stage 2: build the acknowledgment steering vector and sweep magnitude
-src/data.py          cued multiple-choice items (synthetic + hooks for MMLU/ARC) with sycophancy / metadata cues
-src/rollouts.py      model rollout + pre-answer residual-activation capture
-src/labeling.py      usage + acknowledgment labels (keyword + LLM-judge hook)
+src/data.py          cued multiple-choice items (MMLU, ARC-Challenge or synthetic) with sycophancy / metadata / naturalistic cues
+src/rollouts.py      model rollout (fixed token budget) + pre-answer residual-activation capture
+src/labeling.py      usage + acknowledgment labels (local LLM judge as the primary label, keyword readout beside it)
 src/probes.py        difference-of-means / logistic probes, AUROC, direction cosine
 src/steering.py      contrastive acknowledgment steering vector + swept-magnitude forward hook
+src/gates.py         the pre-registered stage-1 gates: cell counts, cosine, AUROC confidence intervals, cross-prediction
+tests/               checks for the pipeline (numpy and scipy only)
 ```
 
 ## Quickstart
@@ -38,9 +40,10 @@ The core analysis runs with no model and no installs:
 
 ```bash
 python run_demo.py     # synthetic activations: shows the usage-vs-acknowledgment probe orthogonality check
+python -m unittest tests.test_pipeline -v   # needs numpy and scipy
 ```
 
-The real pipeline needs a GPU (~24 GB) and an open reasoning model:
+The real pipeline needs a GPU (~24 GB), an open reasoning model, and a local judge model served by [Ollama](https://ollama.com):
 
 ```bash
 pip install -r requirements.txt

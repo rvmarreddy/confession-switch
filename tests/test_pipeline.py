@@ -102,7 +102,7 @@ class Gates(unittest.TestCase):
         self.assertAlmostEqual(auc, auroc(s, y))
 
 
-@unittest.skipUnless(_delong_written(), "delong_paired not written yet (Rithvik's part)")
+@unittest.skipUnless(_delong_written(), "delong_paired not written yet")
 class DeLong(unittest.TestCase):
     def setUp(self):
         rng = np.random.default_rng(3)
