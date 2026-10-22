@@ -1,63 +1,52 @@
-# The Confession Switch
+# Confession Switch
 
-**Can you steer whether a model *admits* using a cue in its chain-of-thought, separately from whether it *uses* it?**
+Reasoning models often take a hint in the prompt, move their answer to match it, and then write a chain of thought that never mentions the hint. This project tests whether the mention can be steered separately from the use. It looks for two directions in the model's activations. Adding the acknowledgment direction should change whether the chain of thought mentions the hint while the answer stays the same. Adding the usage direction should change the answer while the mention stays the same.
 
-Reasoning models often use a hint to reach an answer and then write a chain-of-thought (CoT) that never mentions it. This project asks whether that omission is a *separate, steerable mechanism* rather than just absent computation. Concretely, it looks for a **causal double dissociation**:
+If the two directions come apart, a monitor that reads the chain of thought could be fooled by a small change that hides the hint and leaves the answer alone. If they turn out to be the same direction, the mention is mostly a readout of the use, which is still worth knowing.
 
-- an **acknowledgment direction** in activation space that turns verbalized acknowledgment of a cue up or down **while the answer and the cue's behavioral effect stay fixed**, and
-- a distinct **usage direction** that moves the answer but not the acknowledgment.
+## Status
 
-If that dissociation exists, unfaithful CoT is partly a thin **reporting/suppression** layer on top of the computation. The safety punchline: **CoT monitoring can be defeated by a cheap acknowledgment-suppression intervention that leaves behavior intact.** The honest alternative outcome (the two directions are collinear, so "acknowledgment is just a readout of usage") is also a clean, citable result.
+The analysis code and the stage 1 gates are written and tested on synthetic data. Nothing has been run on a real model yet.
 
----
+## Stages
 
-## The experiment in three stages
+1. Label and probe. Cued multiple-choice items from MMLU and ARC-Challenge, with three kinds of cue (sycophancy, a metadata tag and a more natural cue). Each rollout gets two labels, usage (the answer moved to the cued option) and acknowledgment (the chain of thought mentions the cue, judged by a local model with a keyword check beside it). One linear probe per label on the residual stream before the answer, then the cosine between the two probe directions. The gates for going on to stage 2 are fixed in advance in `src/gates.py`.
+2. Steer. An acknowledgment vector from the difference of means between rollouts that mention the cue and rollouts that don't, matched on usage and the chosen answer. It is added at one layer over a range of strengths, to see whether the mention rate moves while the answer stays put.
+3. Localise. Activation and attribution patching to find where the effect sits. Not written yet.
 
-1. **Behavioral 2x2 + two probes (the week-1 go/no-go).** On cued multiple-choice items, label each rollout by *usage* (did the answer move to the cue?) and *acknowledgment* (did the CoT verbalize the cue?). Confirm a meaningful **used-but-not-acknowledged** bucket exists, then train two linear probes on pre-answer residual activations and report each AUROC plus the **cosine between the two probe directions**. Non-collinear directions = the project is alive.
-2. **The confession switch.** Build a contrastive **acknowledgment** steering vector (matched on usage/answer), sweep its magnitude, and measure the dose-response: does verbalized acknowledgment move while the answer stays flat?
-3. **Localization.** Use activation / attribution patching to localize where the acknowledgment-suppression lives.
+## Running it
 
-## What's in here
+The demo needs only Python:
 
-```
-README.md            this file
-PLAN.md              research plan, milestones, prior work, honest caveats
-run_demo.py          runnable with zero dependencies: the two-probe orthogonality analysis on synthetic activations
-run_probe_check.py   stage 1 on a real model: rollouts, labels, both probes and the pre-registered gates
-run_steer.py         stage 2: build the acknowledgment steering vector and sweep magnitude
-src/data.py          cued multiple-choice items (MMLU, ARC-Challenge or synthetic) with sycophancy / metadata / naturalistic cues
-src/rollouts.py      model rollout (fixed token budget) + pre-answer residual-activation capture
-src/labeling.py      usage + acknowledgment labels (local LLM judge as the primary label, keyword readout beside it)
-src/probes.py        difference-of-means / logistic probes, AUROC, direction cosine
-src/steering.py      contrastive acknowledgment steering vector + swept-magnitude forward hook
-src/gates.py         the pre-registered stage-1 gates: cell counts, cosine, AUROC confidence intervals, cross-prediction
-tests/               checks for the pipeline (numpy and scipy only)
-```
+    python run_demo.py
 
-## Quickstart
+The tests need numpy and scipy:
 
-The core analysis runs with no model and no installs:
+    python -m unittest tests.test_pipeline -v
 
-```bash
-python run_demo.py     # synthetic activations: shows the usage-vs-acknowledgment probe orthogonality check
-python -m unittest tests.test_pipeline -v   # needs numpy and scipy
-```
+The real pipeline needs a GPU with about 24 GB, an open reasoning model from Hugging Face, and a judge model served locally by [Ollama](https://ollama.com):
 
-The real pipeline needs a GPU (~24 GB), an open reasoning model, and a local judge model served by [Ollama](https://ollama.com):
+    pip install -r requirements.txt
+    python run_probe_check.py --model deepseek-ai/DeepSeek-R1-Distill-Qwen-7B
+    python run_steer.py --model deepseek-ai/DeepSeek-R1-Distill-Qwen-7B
 
-```bash
-pip install -r requirements.txt
-python run_probe_check.py --model deepseek-ai/DeepSeek-R1-Distill-Qwen-7B   # stage 1 go/no-go
-python run_steer.py       --model deepseek-ai/DeepSeek-R1-Distill-Qwen-7B   # stage 2 dose-response
-```
+## Layout
 
-## Relation to prior work (and what is new)
+    run_demo.py          probe comparison on synthetic activations
+    run_probe_check.py   stage 1 on a real model
+    run_steer.py         stage 2, the steering sweep
+    src/data.py          cued multiple-choice items
+    src/rollouts.py      generation and residual-stream capture
+    src/labeling.py      usage and acknowledgment labels
+    src/probes.py        probes, AUROC and direction cosine
+    src/steering.py      the acknowledgment vector and the steering hook
+    src/gates.py         the stage 1 gates
+    tests/               tests for the pipeline
 
-- **Turpin et al. 2023 / Chen et al. 2025** — document that models use cues without verbalizing them (behavioral). No causal control of acknowledgment.
-- **"Catching rationalization in the act" (arXiv:2603.17199)** — *probes* for rationalization features but is correlational, and explicitly lists "turn these into steering interventions" and "are these features causally involved" as **future work**. This project does exactly that.
-- **"Decoding answers before CoT" / sycophantic-anchor steering** — steer *usage* or the answer, not *acknowledgment*.
+## Related work
 
-The new contribution is the **causal double dissociation of acknowledgment from usage** (a steerable confession switch), not another measurement of the gap. See `PLAN.md` for the honest caveats (chiefly: the two directions may turn out entangled, which the week-1 check is designed to catch early).
+Turpin et al. (2023, arXiv:2305.04388) and Chen et al. (2025, arXiv:2505.05410) show that models use cues without saying so. Both measure the behaviour and do not try to control it. "Catching rationalization in the act" (arXiv:2603.17199) finds probe features for rationalisation but leaves steering as future work. Work on steering the answer, such as "Decoding answers before CoT" (arXiv:2603.01437), moves the answer rather than the mention.
 
-## License
-MIT. Author: Rithvik Marreddy.
+## Licence
+
+MIT

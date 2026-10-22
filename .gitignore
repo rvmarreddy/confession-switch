@@ -3,14 +3,15 @@ __pycache__/
 *.pyc
 .venv/
 venv/
-# Results, weights, figures, tables and notebook checkpoints stay out of the public repo
+
+# Results, weights and figures
 results/
 *.pt
 *.png
 *.csv
 .ipynb_checkpoints/
 
-# LaTeX build intermediates (keep the .tex/.bib/.pdf)
+# LaTeX build files
 *.aux
 *.bbl
 *.blg
@@ -20,5 +21,3 @@ results/
 *.toc
 *.fls
 *.fdb_latexmk
-
-
