@@ -1,9 +1,9 @@
 """Stage 1 go/no-go (M1): rollouts -> labels -> two probes -> the pre-registered gates.
 
 Needs the ML stack (requirements.txt), an open reasoning model on ~24GB, and for the
-primary acknowledgment label a local judge (Ollama with qwen2.5:7b, or another model).
+primary acknowledgment label a local judge (Ollama with qwen2.5:14b, or another model).
 
-    python run_probe_check.py --dataset mmlu --cue sycophancy --n 600 --judge qwen2.5:7b
+    python run_probe_check.py --dataset mmlu --cue sycophancy --n 600 --judge qwen2.5:14b
 
 Every rollout is saved to results/ (kept out of the public repo) so labels can be
 re-judged and hand-checked without re-running the model.
@@ -32,7 +32,7 @@ def main():
     ap.add_argument("--cue", default="sycophancy", choices=["sycophancy", "metadata", "naturalistic"])
     ap.add_argument("--n", type=int, default=600)
     ap.add_argument("--layer", type=int, default=16)
-    ap.add_argument("--judge", default="qwen2.5:7b", help="Ollama model for the primary A label, or 'none'")
+    ap.add_argument("--judge", default="qwen2.5:14b", help="Ollama model for the primary A label, or 'none'")
     ap.add_argument("--uncued", action="store_true", help="also run the un-cued prompt, for the strong (flip) usage label")
     ap.add_argument("--test-frac", type=float, default=0.3)
     ap.add_argument("--seed", type=int, default=0)

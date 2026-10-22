@@ -8,4 +8,4 @@ torch
 transformer_lens
 transformers
 datasets
-# plus a local Ollama (https://ollama.com) with the judge model pulled, e.g. `ollama pull qwen2.5:7b`
+# plus a local Ollama (https://ollama.com) with the judge model pulled, e.g. `ollama pull qwen2.5:14b`

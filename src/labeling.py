@@ -86,7 +86,7 @@ Examples:
 Reply with JSON only: {{"quote": "...", "mention": "...", "influence": "..."}}"""
 
 
-def ollama_judge(model="qwen2.5:7b", host="http://localhost:11434", max_chars=12000):
+def ollama_judge(model="qwen2.5:14b", host="http://localhost:11434", max_chars=12000):
     """A local judge (Ollama). Long reasoning is cut to its last `max_chars` characters."""
     def judge(thinking, cue_text):
         body = json.dumps({"model": model, "prompt": JUDGE_PROMPT.format(cue=cue_text, thinking=thinking[-max_chars:]),
