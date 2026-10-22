@@ -1,7 +1,7 @@
 """Cued multiple-choice items with a sycophancy cue.
 
-Synthetic by default (runnable with no downloads); load_mmlu / load_arc hooks are
-left for real data. Each item carries the correct option and a planted cue option,
+Synthetic only for now (runnable with no downloads). TODO: add load_mmlu / load_arc
+loaders for real data. Each item carries the correct option and a planted cue option,
 so usage (answer == cue) and acknowledgment (CoT mentions the cue) are both well
 defined.
 """

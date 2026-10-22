@@ -1,22 +1,24 @@
+.DS_Store
 __pycache__/
 *.pyc
 .venv/
 venv/
+# Results, weights, figures, tables and notebook checkpoints stay out of the public repo
 results/
 *.pt
 *.png
 *.csv
-.DS_Store
 .ipynb_checkpoints/
 
-# LaTeX build intermediates (keep .tex and .pdf)
+# LaTeX build intermediates (keep the .tex/.bib/.pdf)
 *.aux
-*.log
-*.out
-*.fls
-*.fdb_latexmk
-*.synctex.gz
 *.bbl
 *.blg
+*.log
+*.out
+*.synctex.gz
+*.toc
+*.fls
+*.fdb_latexmk
 
 
